@@ -9,6 +9,11 @@
 bool ProjectCreator::createProject(const std::string& name, int cppVersion, const std::string& runtimeBin, const std::string& runtimeLib, bool enableDebug, bool enableGraphics) {
     namespace fs = std::filesystem;
     try {
+        // Check if directory already exists
+        if (fs::exists(name) && fs::is_directory(name)) {
+            std::cerr << COLOR_RED << "Error: Directory '" << name << "' already exists. Project creation aborted." << COLOR_RESET << std::endl;
+            return false;
+        }
         fs::create_directories(name + "/include");
         fs::create_directories(name + "/src");
         fs::create_directories(name + "/external");

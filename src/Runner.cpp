@@ -31,9 +31,9 @@ bool Runner::runProject(const std::string& path) {
         std::cerr << COLOR_RED << "No built binary found. Build the project first." << COLOR_RESET << std::endl;
         return false;
     }
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Running " << binToRun << " ..." << COLOR_RESET << std::endl;
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     int ret = system(binToRun.c_str());
     return ret == 0;
 } 

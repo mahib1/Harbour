@@ -24,16 +24,16 @@ bool Builder::buildProject(const std::string& path, bool debugMode, bool cleanBu
     ConfigManager cfg;
     if (!cfg.readConfig(path)) return false;
 
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Checking for dependencies..." << COLOR_RESET << std::endl;
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
 
     DependencyManager dep;
     if (!dep.checkDependencies(cfg.enableGraphics)) return false;
 
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Configuring build..." << COLOR_RESET << std::endl;
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::string absProjectRoot = fs::absolute(path);
     std::string cmakeCmd = "cd '" + buildPath + "' && cmake '" + absProjectRoot + "'";
 
@@ -45,18 +45,18 @@ bool Builder::buildProject(const std::string& path, bool debugMode, bool cleanBu
 
     if (system(cmakeCmd.c_str()) != 0) return false;
 
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Building project..." << COLOR_RESET << std::endl;
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::string makeCmd = "cd '" + buildPath + "' && make";
 
     debug::print(makeCmd);
 
     if (system(makeCmd.c_str()) != 0) return false;
 
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Linking the Compile Commands for clangd" << COLOR_RESET << std::endl;
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::string binPath = buildPath + "/" + cfg.runtimeBin + "/" + cfg.projectName;
 
     debug::print(binPath);
@@ -77,9 +77,9 @@ bool Builder::buildProject(const std::string& path, bool debugMode, bool cleanBu
     }
 
 
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
-    std::cout << COLOR_GREEN << "Done! Run it via ./src/" << cfg.projectName << (debugMode ? "_debug" : "") << COLOR_RESET << std::endl;
-    std::cout << COLOR_MAGENTA << "=======================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
+    std::cout << COLOR_GREEN << "Done! Run it via 'harbour run'" << COLOR_RESET << std::endl;
+    std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
 
     return true;
 } 
