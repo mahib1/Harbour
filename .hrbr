@@ -1,0 +1,19 @@
+{
+  "info": {
+    "name": "myproject",
+    "type": "binary",
+    "version": "1.0.0"
+  },
+  "scripts": {
+    "run": "./bin/myproject",
+    "install": [
+      "echo Installing...",
+      "cp ./lib/mylib.a /usr/local/lib/"
+    ]
+  },
+  "dependencies": {
+    "glfw": "^3.3.8",
+    "glm": "^0.9.9",
+    "spdlog": "^1.11.0"
+  }
+} 

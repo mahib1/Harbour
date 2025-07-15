@@ -1,9 +1,6 @@
-#include "comp.h"
-#include <iostream>
-#include "debug.hpp"
+#include "CLI.hpp"
 
-int main() {
-  debug::print("Test debug log");
-  std::cout << "Hello, world!" << std::endl;
-  return 0;
+int main(int argc, char* argv[]) {
+    CLI cli;
+    return cli.run(argc, argv);
 }

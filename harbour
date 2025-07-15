@@ -1,0 +1,325 @@
+#!/bin/zsh
+
+set -e
+
+# Helper: print usage
+usage() {
+  echo "Usage: $0 <command> [options]"
+  echo "Commands:"
+  echo "  new <project_name> [options]     Create a new project"
+  echo "      -v <cpp_version>             C++ version (default: 17)"
+  echo "      -b <bin_dir>                 Runtime bin dir (default: bin)"
+  echo "      -l <lib_dir>                 Runtime lib dir (default: lib)"
+  echo "      -g                           Enable debug mode"
+  echo "      -G                           Enable graphics (GLFW/GLAD/GLM)"
+  echo "  build [-d] [path]                Build the project (optionally in debug mode)"
+  echo "  run [path]                       Run the built binary"
+  exit 1
+}
+
+# Helper: write .harbourConfig
+write_config() {
+  local config_path="$1/.harbourConfig"
+  cat <<END > "$config_path"
+project_name="$2"
+cpp_version="$3"
+runtime_bin="$4"
+runtime_lib="$5"
+enable_debug="$6"
+enable_graphics="$7"
+dependencies="$8"
+END
+}
+
+# Helper: read .harbourConfig into variables
+read_config() {
+  local config_path="$1/.harbourConfig"
+  if [ ! -f "$config_path" ]; then
+    echo ".harbourConfig not found in $1" >&2
+    exit 1
+  fi
+  source "$config_path"
+}
+
+# Helper: check and clone dependencies
+check_dependencies() {
+  mkdir -p external
+  if [ "$enable_graphics" = "true" ]; then
+    # GLFW
+    if [ ! -d external/glfw ]; then
+      echo "→ Cloning GLFW..."
+      git clone https://github.com/glfw/glfw.git external/glfw
+    else
+      echo "✓ GLFW found"
+    fi
+    # GLM
+    if [ ! -d external/glm ]; then
+      echo "→ Cloning GLM..."
+      git clone https://github.com/g-truc/glm.git external/glm
+    else
+      echo "✓ GLM found"
+    fi
+    # GLAD
+    if [ ! -d external/glad ]; then
+      echo "→ Cloning GLAD..."
+      git clone https://github.com/Dav1dde/glad.git external/glad
+      echo "→ Running glad generator (OpenGL C 3.3 compatibility)..."
+      cd external/glad
+      mkdir -p GL
+      python3 -m glad --out-path ./GL --api gl:compatibility=3.3 c
+      cd ../..
+    else
+      echo "✓ GLAD found"
+    fi
+  fi
+}
+
+# Subcommand: new
+cmd_new() {
+  # Defaults
+  cpp_version=17
+  runtime_bin="bin"
+  runtime_lib="lib"
+  enable_debug=false
+  enable_graphics=false
+  dependencies=""
+
+  # Parse options
+  while getopts "v:b:l:gG" opt; do
+    case $opt in
+      v) cpp_version=$OPTARG ;;
+      b) runtime_bin=$OPTARG ;;
+      l) runtime_lib=$OPTARG ;;
+      g) enable_debug=true ;;
+      G) enable_graphics=true ;;
+      *) usage ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  project_name=$1
+  if [ -z "$project_name" ]; then
+    usage
+  fi
+
+  echo "=========================================="
+  echo "Creating C++${cpp_version} project named ${project_name}"
+  echo "=========================================="
+
+  mkdir -p "$project_name"/{include,src,external}
+  cd "$project_name" || exit
+  touch CMakeLists.txt
+
+  # Write CMakeLists.txt
+  cat <<END > CMakeLists.txt
+cmake_minimum_required(VERSION 3.16)
+project(${project_name} VERSION 1.0.0 LANGUAGES C CXX) 
+
+set(CMAKE_CXX_STANDARD ${cpp_version})
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include_directories(
+  include
+)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY \${CMAKE_BINARY_DIR}/${runtime_bin})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY \${CMAKE_BINARY_DIR}/${runtime_lib})
+
+# Sources
+set(SOURCES 
+  src/main.cpp
+)
+
+add_executable(${project_name} \${SOURCES})
+
+# target_link_libraries()
+# target_include_directories()
+END
+
+  if [ "$enable_graphics" = "true" ]; then
+    echo "Enabling graphics mode..."
+    git clone https://github.com/glfw/glfw external/glfw
+    git clone https://github.com/Dav1dde/glad external/glad
+    git clone https://github.com/g-truc/glm external/glm
+    echo "Generating GLAD..."
+    cd external/glad
+    mkdir -p GL
+    python3 -m glad --out-path GL --api gl:core=3.3 c
+    cd ../..
+    cat <<END >> CMakeLists.txt
+
+# Graphics libraries
+add_subdirectory(external/glfw)
+include_directories(external/glad/GL/include)
+include_directories(external/glm)
+
+file(GLOB GLAD_SOURCES external/glad/GL/src/gl.c)
+target_sources(${project_name} PRIVATE \${GLAD_SOURCES})
+target_link_libraries(${project_name} glfw)
+END
+    dependencies="glfw,glad,glm"
+  fi
+
+  # Main.cpp base
+  cat <<END > src/main.cpp
+#include "comp.h"
+#include <iostream>
+END
+
+  if [ "$enable_debug" = "true" ]; then
+    cat <<END > include/debug.hpp
+#pragma once
+#include <iostream>
+
+class debug {
+public:
+  template<typename... Args>
+  static void print(Args&&... args) {
+    #ifdef DEBUG
+    (std::cout << ... << args) << std::endl;
+    #endif
+  }
+};
+END
+    echo '#include "debug.hpp"' >> src/main.cpp
+  fi
+
+  # Add main function based on debug mode
+  if [ "$enable_debug" = "true" ]; then
+    cat <<END >> src/main.cpp
+
+int main() {
+  debug::print("Test debug log");
+  std::cout << "Hello, world!" << std::endl;
+  return 0;
+}
+END
+  else
+    cat <<END >> src/main.cpp
+
+int main() {
+  std::cout << "Hello, world!" << std::endl;
+  return 0;
+}
+END
+  fi
+
+  # Header stub
+  touch include/comp.h
+
+  # Write config
+  write_config "." "$project_name" "$cpp_version" "$runtime_bin" "$runtime_lib" "$enable_debug" "$enable_graphics" "$dependencies"
+
+  echo "Project Created!"
+  echo "Configuring build..."
+  echo "=========================================="
+
+  mkdir -p build
+  cd build || exit
+  cmake .. 
+  make
+
+  echo "=========================================="
+  echo "Running program:"
+  ./${runtime_bin}/${project_name}
+  cd ..
+
+  # Set up compile_commands.json symlink
+  ln -sf build/compile_commands.json compile_commands.json  
+
+  echo "=========================================="
+  echo "Done!"
+}
+
+# Subcommand: build
+cmd_build() {
+  # Parse -d for debug
+  debug_mode=false
+  while getopts "d" opt; do
+    case $opt in
+      d) debug_mode=true ;;
+      *) usage ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+  build_path="${1:-.}"
+  cd "$build_path"
+  read_config "."
+
+  echo "======================================="
+  echo "🔍 Checking for dependencies..."
+  echo "======================================="
+  check_dependencies
+
+  echo "======================================="
+  echo "📦 Configuring build..."
+  echo "======================================="
+  mkdir -p build
+  cd build
+  CMAKE_FLAGS=""
+  if [ "$debug_mode" = "true" ]; then
+    echo "⚙️  Debug mode enabled"
+    CMAKE_FLAGS='-DCMAKE_CXX_FLAGS="-DDEBUG"'
+  fi
+  cmake .. $CMAKE_FLAGS
+
+  echo "======================================="
+  echo "🔨 Building project..."
+  echo "======================================="
+  make
+
+  echo "======================================="
+  echo "🚚 Moving binary to src/..."
+  echo "======================================="
+  BINARY_NAME="$project_name"
+  if [ -f "./$runtime_bin/$BINARY_NAME" ]; then
+    mv "./$runtime_bin/$BINARY_NAME" ../src/
+    echo "✓ Moved $BINARY_NAME to src/"
+  else
+    echo "✗ Build did not produce expected binary: $BINARY_NAME"
+    exit 1
+  fi
+  echo "======================================="
+  echo "✅ Done! Run it via ./src/$BINARY_NAME"
+  echo "======================================="
+}
+
+# Subcommand: run
+cmd_run() {
+  run_path="${1:-.}"
+  cd "$run_path"
+  read_config "."
+  BINARY_NAME="$project_name"
+  if [ ! -f "src/$BINARY_NAME" ]; then
+    echo "Binary src/$BINARY_NAME not found. Build the project first."
+    exit 1
+  fi
+  echo "======================================="
+  echo "🚀 Running $BINARY_NAME ..."
+  echo "======================================="
+  ./src/$BINARY_NAME
+}
+
+# Main entrypoint
+if [ $# -lt 1 ]; then
+  usage
+fi
+
+case $1 in
+  new)
+    shift
+    cmd_new "$@"
+    ;;
+  build)
+    shift
+    cmd_build "$@"
+    ;;
+  run)
+    shift
+    cmd_run "$@"
+    ;;
+  *)
+    usage
+    ;;
+esac

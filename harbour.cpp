@@ -5,13 +5,8 @@
 #include <filesystem>
 #include <cstring>
 #include "debug.hpp"
+#include "colors.hpp"
 
-// ANSI color codes
-const char* COLOR_RESET   = "\033[0m";
-const char* COLOR_RED     = "\033[31m";
-const char* COLOR_GREEN   = "\033[32m";
-const char* COLOR_YELLOW  = "\033[33m";
-const char* COLOR_MAGENTA = "\033[35m";
 
 bool ConfigManager::readConfig(const std::string& path) {
     std::ifstream infile(path + "/.harbourConfig");
