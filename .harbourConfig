@@ -1,0 +1,7 @@
+project_name="Harbour"
+cpp_version="17"
+runtime_bin="bin"
+runtime_lib="lib"
+enable_debug="true"
+enable_graphics="false"
+dependencies=""
