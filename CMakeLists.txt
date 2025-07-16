@@ -8,7 +8,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-file(GLOB IMPL_SOURCES "src/impl/*.cpp")
+file(GLOB IMPL_SOURCES 
+  "src/impl/*.cpp" 
+  "src/utils/*.cpp"
+)
 
 add_library(harbour_lib STATIC ${IMPL_SOURCES})
 
