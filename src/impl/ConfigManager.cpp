@@ -1,7 +1,5 @@
-#include "ConfigManager.hpp"
-#include "files.hpp"
 #include <iostream>
-#include "colors.hpp"
+#include "harbour.hpp"
 
 namespace Harbour {
 namespace Project {

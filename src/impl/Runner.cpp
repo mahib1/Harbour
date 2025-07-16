@@ -1,9 +1,6 @@
-#include "Runner.hpp"
-#include "ConfigManager.hpp"
-#include "colors.hpp"
 #include <filesystem>
 #include <iostream>
-#include <cstdlib>
+#include "harbour.hpp"
 
 namespace Harbour {
 namespace Project {
@@ -37,8 +34,14 @@ bool Runner::runProject(const std::string& path) {
     std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Running " << binToRun << " ..." << COLOR_RESET << std::endl;
     std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
-    int ret = system(binToRun.c_str());
-    return ret == 0;
+    Harbour::CommandExecutor exec;
+    auto args = std::vector<std::string>{"/bin/sh", "-c", binToRun};
+    auto result = exec.run(args, true);
+    if (result.exitCode != 0) {
+        debug::print("Run failed: ", result.error, result.output);
+        return false;
+    }
+    return true;
 }
 
 } // namespace Project

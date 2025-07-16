@@ -1,11 +1,6 @@
-#include "Builder.hpp"
-#include "ConfigManager.hpp"
-#include "DependencyManager.hpp"
-#include "debug.hpp"
 #include <filesystem>
 #include <iostream>
-#include <cstdlib>
-#include "colors.hpp"
+#include "harbour.hpp"
 
 namespace Harbour {
 namespace Project {
@@ -45,7 +40,13 @@ bool Builder::buildProject(const std::string& path, bool debugMode, bool cleanBu
     }
     debug::print(cmakeCmd);
 
-    if (system(cmakeCmd.c_str()) != 0) return false;
+    Harbour::CommandExecutor exec;
+    auto cmakeArgs = std::vector<std::string>{"/bin/sh", "-c", cmakeCmd};
+    auto cmakeResult = exec.run(cmakeArgs, true);
+    if (cmakeResult.exitCode != 0) {
+        debug::print("CMake failed: ", cmakeResult.error, cmakeResult.output);
+        return false;
+    }
 
     std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Building project..." << COLOR_RESET << std::endl;
@@ -54,7 +55,12 @@ bool Builder::buildProject(const std::string& path, bool debugMode, bool cleanBu
 
     debug::print(makeCmd);
 
-    if (system(makeCmd.c_str()) != 0) return false;
+    auto makeArgs = std::vector<std::string>{"/bin/sh", "-c", makeCmd};
+    auto makeResult = exec.run(makeArgs, true);
+    if (makeResult.exitCode != 0) {
+        debug::print("Make failed: ", makeResult.error, makeResult.output);
+        return false;
+    }
 
     std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     std::cout << COLOR_YELLOW << "Linking the Compile Commands for clangd" << COLOR_RESET << std::endl;

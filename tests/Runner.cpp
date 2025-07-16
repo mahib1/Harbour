@@ -5,9 +5,7 @@
 #include <string>
 #include <thread> // For std::this_thread::sleep_for
 
-#include "ConfigManager.hpp"
-#include "Runner.hpp"
-#include "colors.hpp" // Assumed dependency for colored output
+#include "harbour.hpp"
 
 const std::filesystem::path MOCK_PROJECT_ROOT = "mock_project";
 

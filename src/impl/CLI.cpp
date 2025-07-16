@@ -1,14 +1,8 @@
-#include "CLI.hpp"
-#include "Builder.hpp"
-#include "ConfigManager.hpp"
-#include "DependencyManager.hpp"
-#include "ProjectCreator.hpp"
-#include "Runner.hpp"
-#include "colors.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "harbour.hpp"
 
 namespace Harbour {
 namespace Project {

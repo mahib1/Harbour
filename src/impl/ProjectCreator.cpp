@@ -1,9 +1,6 @@
-#include "ProjectCreator.hpp"
-#include "ConfigManager.hpp"
-#include "files.hpp"
-#include "colors.hpp"
 #include <filesystem>
 #include <iostream>
+#include "harbour.hpp"
 
 namespace Harbour {
 namespace Project {
