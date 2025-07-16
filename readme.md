@@ -43,7 +43,7 @@ Harbour provides several commands to manage your projects.
 The **`new`** command creates a new C++ project.
 
 ```bash
-harbour new <project_name> [options]
+harbour new [options] <project_name>
 ```
 
 **Options:**
@@ -105,5 +105,5 @@ make
 You can then run the individual test executables. For example, to run the tests for the `Runner` class:
 
 ```bash
-./Runner
+./build/tests/bin/Runner
 ```
