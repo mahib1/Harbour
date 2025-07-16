@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <filesystem> // Use the filesystem library
+#include <filesystem>
 #include <fstream>
 #include <ios>
 #include <stdexcept>
@@ -20,7 +20,7 @@ typedef enum {
 class fileHandler {
 private:
   std::fstream file;
-  std::filesystem::path filePath; // Use std::filesystem::path
+  std::filesystem::path filePath;
   std::vector<Harbour::FH::FILE_MODE> modes;
 
 public:
@@ -53,7 +53,6 @@ public:
     std::ios_base::openmode final_mode = {};
     bool has_read = false, has_write = false, has_append = false;
 
-    // 1. Determine which modes were requested
     for (auto f : this->modes) {
       if (f == READ)
         has_read = true;
@@ -63,7 +62,6 @@ public:
         has_append = true;
     }
 
-    // 2. If writing/appending, ensure the path exists first
     if (has_write || has_append) {
       if (filePath.has_parent_path()) {
         const auto parentDir = filePath.parent_path();
@@ -71,12 +69,10 @@ public:
           std::filesystem::create_directories(parentDir);
         }
       }
-      // "Touch" the file to create it if it doesn't exist, without truncating
       std::ofstream touch(filePath, std::ios::app);
       touch.close();
     }
 
-    // 3. Build the final mode flags based on the user's intent
     if (has_append) {
       final_mode |= std::ios::app | std::ios::out;
       if (has_read)
@@ -84,17 +80,14 @@ public:
     } else if (has_write) {
       final_mode |= std::ios::out;
       if (has_read) {
-        // "rw" mode: NO truncation
         final_mode |= std::ios::in;
       } else {
-        // "w" only mode: YES truncation
         final_mode |= std::ios::trunc;
       }
     } else if (has_read) {
       final_mode |= std::ios::in;
     }
 
-    // 4. Open the file with the correctly built mode
     file.open(filePath, final_mode);
     return file.is_open();
   }
