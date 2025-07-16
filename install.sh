@@ -8,4 +8,8 @@ cd build/release
 cmake ../.. 
 make 
 
+echo "==================================================================================="
 echo "Install Complete! Please add $(pwd)/bin/release to the PATH"
+echo "OR"
+echo "Alias $(pwd)/bin/release in the shell rc file"
+echo "==================================================================================="
