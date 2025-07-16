@@ -1,5 +1,5 @@
 #include "ConfigManager.hpp"
-#include <fstream>
+#include "files.hpp"
 #include <iostream>
 #include "colors.hpp"
 
@@ -7,13 +7,14 @@ namespace Harbour {
 namespace Project {
 
 bool ConfigManager::readConfig(const std::string& path) {
-    std::ifstream infile(path + "/.harbourConfig");
-    if (!infile) {
+    Harbour::FH::fileHandler infile(path + "/.harbourConfig", "r");
+    if (!infile.open()) {
         std::cerr << COLOR_RED << ".harbourConfig not found in " << path << COLOR_RESET << std::endl;
         return false;
     }
     std::string line;
-    while (std::getline(infile, line)) {
+    auto& stream = infile.getStream();
+    while (std::getline(stream, line)) {
         auto eq = line.find('=');
         if (eq == std::string::npos) continue;
         std::string key = line.substr(0, eq);
@@ -27,19 +28,22 @@ bool ConfigManager::readConfig(const std::string& path) {
         else if (key == "enable_graphics") enableGraphics = (value == "true");
         else if (key == "dependencies") dependencies = value;
     }
+    infile.close();
     return true;
 }
 
 bool ConfigManager::writeConfig(const std::string& path, const std::string& projectName, int cppVersion, const std::string& runtimeBin, const std::string& runtimeLib, bool enableDebug, bool enableGraphics, const std::string& dependencies) {
-    std::ofstream outfile(path + "/.harbourConfig");
-    if (!outfile) return false;
-    outfile << "project_name=\"" << projectName << "\"\n";
-    outfile << "cpp_version=\"" << cppVersion << "\"\n";
-    outfile << "runtime_bin=\"" << runtimeBin << "\"\n";
-    outfile << "runtime_lib=\"" << runtimeLib << "\"\n";
-    outfile << "enable_debug=\"" << (enableDebug ? "true" : "false") << "\"\n";
-    outfile << "enable_graphics=\"" << (enableGraphics ? "true" : "false") << "\"\n";
-    outfile << "dependencies=\"" << dependencies << "\"\n";
+    Harbour::FH::fileHandler outfile(path + "/.harbourConfig", "w");
+    if (!outfile.open()) return false;
+    auto& stream = outfile.getStream();
+    stream << "project_name=\"" << projectName << "\"\n";
+    stream << "cpp_version=\"" << cppVersion << "\"\n";
+    stream << "runtime_bin=\"" << runtimeBin << "\"\n";
+    stream << "runtime_lib=\"" << runtimeLib << "\"\n";
+    stream << "enable_debug=\"" << (enableDebug ? "true" : "false") << "\"\n";
+    stream << "enable_graphics=\"" << (enableGraphics ? "true" : "false") << "\"\n";
+    stream << "dependencies=\"" << dependencies << "\"\n";
+    outfile.close();
     return true;
 }
 
