@@ -3,6 +3,9 @@
 #include <iostream>
 #include "colors.hpp"
 
+namespace Harbour {
+namespace Project {
+
 bool ConfigManager::readConfig(const std::string& path) {
     std::ifstream infile(path + "/.harbourConfig");
     if (!infile) {
@@ -38,4 +41,7 @@ bool ConfigManager::writeConfig(const std::string& path, const std::string& proj
     outfile << "enable_graphics=\"" << (enableGraphics ? "true" : "false") << "\"\n";
     outfile << "dependencies=\"" << dependencies << "\"\n";
     return true;
-} 
+}
+
+} // namespace Project
+} // namespace Harbour 

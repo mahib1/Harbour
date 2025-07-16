@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 
+namespace Harbour {
+namespace Project {
+
 class ConfigManager {
 public:
     bool readConfig(const std::string& path);
@@ -12,4 +15,7 @@ public:
     bool enableDebug;
     bool enableGraphics;
     std::string dependencies;
-}; 
+};
+
+} // namespace Project
+} // namespace Harbour 

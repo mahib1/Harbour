@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include "colors.hpp"
 
+namespace Harbour {
+namespace Project {
 
 bool Builder::buildProject(const std::string& path, bool debugMode, bool cleanBuild) {
     namespace fs = std::filesystem;
@@ -82,4 +84,7 @@ bool Builder::buildProject(const std::string& path, bool debugMode, bool cleanBu
     std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
 
     return true;
-} 
+}
+
+} // namespace Project
+} // namespace Harbour 

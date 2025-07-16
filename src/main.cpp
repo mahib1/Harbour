@@ -1,6 +1,6 @@
 #include "CLI.hpp"
 
 int main(int argc, char* argv[]) {
-    CLI cli;
+    Harbour::Project::CLI cli;
     return cli.run(argc, argv);
 }

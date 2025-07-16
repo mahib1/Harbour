@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 
+namespace Harbour {
+namespace Project {
 
 bool ProjectCreator::createProject(const std::string& name, int cppVersion, const std::string& runtimeBin, const std::string& runtimeLib, bool enableDebug, bool enableGraphics) {
     namespace fs = std::filesystem;
@@ -70,4 +72,7 @@ bool ProjectCreator::createProject(const std::string& name, int cppVersion, cons
         std::cerr << COLOR_RED << "Error creating project: " << e.what() << COLOR_RESET << std::endl;
         return false;
     }
-} 
+}
+
+} // namespace Project
+} // namespace Harbour 

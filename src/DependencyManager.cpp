@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include "colors.hpp"
 
+namespace Harbour {
+namespace Project {
 
 bool DependencyManager::checkDependencies(bool enableGraphics) {
     if (!enableGraphics) return true;
@@ -39,4 +41,7 @@ bool DependencyManager::checkDependencies(bool enableGraphics) {
         std::cout << COLOR_GREEN << "GLAD found" << COLOR_RESET << std::endl;
     }
     return true;
-} 
+}
+
+} // namespace Project
+} // namespace Harbour 

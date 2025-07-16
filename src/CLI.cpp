@@ -10,6 +10,9 @@
 #include <iostream>
 #include <string>
 
+namespace Harbour {
+namespace Project {
+
 int CLI::run(int argc, char *argv[]) {
   if (argc < 2) {
     std::cout << "Usage: " << argv[0] << " <command> [options]\n";
@@ -67,7 +70,6 @@ int CLI::run(int argc, char *argv[]) {
               << "=============================================================================" << COLOR_RESET
               << std::endl;
 
-    // Create project
     ProjectCreator creator;
     if (!creator.createProject(projectName, cppVersion, runtimeBin, runtimeLib,
                                enableDebug, enableGraphics)) {
@@ -184,3 +186,6 @@ int CLI::run(int argc, char *argv[]) {
   }
   return 0;
 }
+
+} // namespace Project
+} // namespace Harbour

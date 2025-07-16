@@ -5,6 +5,9 @@
 #include <iostream>
 #include <cstdlib>
 
+namespace Harbour {
+namespace Project {
+
 bool Runner::runProject(const std::string& path) {
     ConfigManager cfg;
     if (!cfg.readConfig(path)) return false;
@@ -36,4 +39,7 @@ bool Runner::runProject(const std::string& path) {
     std::cout << COLOR_MAGENTA << "==========================================================================" << COLOR_RESET << std::endl;
     int ret = system(binToRun.c_str());
     return ret == 0;
-} 
+}
+
+} // namespace Project
+} // namespace Harbour 
